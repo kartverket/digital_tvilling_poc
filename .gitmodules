@@ -1,3 +1,4 @@
 [submodule "TerriaMap"]
 	path = TerriaMap
 	url = https://github.com/kartverket/TerriaMap.git
+	branch = main
