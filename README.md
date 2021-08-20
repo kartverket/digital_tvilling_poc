@@ -1,6 +1,12 @@
 # digital_tvilling_poc
 Repo for terriajs digitaltvilling POC
 
+# Cloning the repo
+
+The repo uses git submodules, so to clone the repo without running git submodule init, you can simply write:
+
+*git clone --recursive \[link to repo\]*
+
 # For å kjøre TerriaMap applikasjonen:
 
 **Notering:**  
