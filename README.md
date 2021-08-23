@@ -7,15 +7,15 @@ The repo uses git submodules, so to clone the repo without running git submodule
 
 *git clone --recursive \[link to repo\]*
 
-# For å kjøre TerriaMap applikasjonen:
+# To run the TerriaMap application:
 
-**Notering:**  
+**Notes:**  
 This repo uses yarn package manager, not npm. Yarn can be installed with npm by running npm install -g yarn
-*yarn install* på TerriaMap bruker .sh script, og trenger derfor å bli kjørt med Bash (PuTTY, git bash eller WSL på windows. Bash på Linux eller Mac), ikke windows kommandolinje eller PowerShell.
+*yarn install* in TerriaMap uses .sh script, and therefore needs to be run with Bash (PuTTY, git bash eller WSL på windows. Bash på Linux eller Mac), not windows command line or PowerShell.
 
 cd TerriaMap  
 yarn install  
 yarn run gulp  
 yarn start  
 
-Da skal man kunne åpne visningsklienten i localhost:3001
+Then you should be able to open the client in localhost:3001
