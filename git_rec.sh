@@ -39,7 +39,7 @@ then
     git submodule update --remote --merge --recursive  
     git pull  
 
-elif [ $1 == "addstash"]
+elif [ $1 == "addstash" ]
 then 
 
     git submodule foreach --recursive 'git add -A'
