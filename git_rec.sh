@@ -53,6 +53,18 @@ then
     git submodule foreach --recursive 'git stash apply'
     git stash apply
 
+elif [ $1 == "status" ]
+then
+    cd TerriaMap/packages/terriajs
+    printf "\nTerriaJS\n"
+    git status
+    cd ../..
+    printf "\nTerriaMap\n"
+    git status
+    cd ..
+    printf "\ndigital_tvilling_poc\n"
+    git status
+
 else
     echo "$1 is not a valid command"
 fi
