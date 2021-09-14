@@ -6,7 +6,11 @@ then
     exit 1
 fi
 
-echo "$2"
+
+update_main () {
+    git submodule update --remote --merge --recursive  
+    git pull 
+}
 
 # recursive checkout
 if [ $1 = "checkout" ]
@@ -36,8 +40,8 @@ then
 
 elif [ $1 == "update" ]
 then    
-    git submodule update --remote --merge --recursive  
-    git pull  
+     
+    update_main
 
 elif [ $1 == "addstash" ]
 then 
