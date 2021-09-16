@@ -49,6 +49,18 @@ git pull
 **git pull** needs to be called in the main reposiry, to pull the new pointer to the state of the submodule
 
 
+# To run the python server
+Make sure that pip and python are installed. Then do as follows:
+
+~~~
+cd FlaskServer
+pip install -r requirements.txt
+python flask_server.py
+~~~
+
+The server is now running on localhost on the port 5000
+
+
 
 **Adding and commiting changes:**  
 If you want to add and commit changes to a submodule, then the change has to be commited first in the submodule. Then you need to add and commit the change to the pointer to the submodule in the outer repo. 
