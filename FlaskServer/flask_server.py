@@ -87,21 +87,7 @@ def sehavniva_data():
         'tzone':"",
         'tide_request':"locationdata"
     }
-    """
-    http://api.sehavniva.no/tideapi.php?lat=58.974339
-    lon=5.730121
-    fromtime=2021-09-17T00%3A00
-    totime=2021-09-18T00%3A00
-    datatype=all
-    refcode=cd
-    place=
-    file=
-    lang=nn
-    interval=10
-    dst=0
-    tzone=
-    tide_request=locationdata
-    """
+    
     request_core = "http://api.sehavniva.no/tideapi.php"
     
     headers = {
