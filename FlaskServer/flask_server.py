@@ -1,4 +1,6 @@
-from flask import Flask
+from datetime import datetime, timedelta
+from xml.etree import ElementTree
+from flask import Flask, jsonify
 from flask.helpers import make_response
 from flask.wrappers import Response
 from flask_cors import CORS
@@ -65,6 +67,69 @@ def yr_weather():
     response.headers['Content-Type'] = 'text/csv'
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
+
+@app.route("/sehavniva")
+def sehavniva_data():
+    currentDate = datetime.now()
+
+    params = {
+        'lat': 58.97,
+        'lon': 5.7331,
+        'fromtime':currentDate.strftime("%Y-%m-%dT%H:%M:%S.%fz"),
+        'totime':(currentDate + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fz"),
+        'datatype':"all",
+        'refcode':"cd",
+        'place':"",
+        'file':"",
+        'lang':"no",
+        'interval':10,
+        'dst':0,
+        'tzone':"",
+        'tide_request':"locationdata"
+    }
+    """
+    http://api.sehavniva.no/tideapi.php?lat=58.974339
+    lon=5.730121
+    fromtime=2021-09-17T00%3A00
+    totime=2021-09-18T00%3A00
+    datatype=all
+    refcode=cd
+    place=
+    file=
+    lang=nn
+    interval=10
+    dst=0
+    tzone=
+    tide_request=locationdata
+    """
+    request_core = "http://api.sehavniva.no/tideapi.php"
+    
+    headers = {
+        'User-Agent': 'Digital tvilling POC',
+        'From': 'https://kartverket.no/'
+    }
+
+
+    response = requests.get(request_core, params, headers=headers)
+    
+    # We use the included ElementTree library to parse and traverse the XML output
+    # As we receive the XML data in the form of a text response, we need to use the fromstring
+    # function to parse the data.
+    xmlDOM = ElementTree.fromstring(response.text)
+    data = {}
+
+    # We use XPath to traverse the xml data
+    # We want to return all <data> tags and their children
+    for dataLevel in xmlDOM.findall("./locationdata/data"):
+        data[dataLevel.attrib["type"]] = []
+        for waterlevel in dataLevel:
+            data[dataLevel.attrib["type"]].append(waterlevel.attrib)
+
+    out = make_response(jsonify(data))
+    out.headers['Content-Type'] = "application/json"
+
+    return out
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
