@@ -119,140 +119,142 @@ def sehavniva_data():
         if not dataLevel.attrib["type"] == "observation":
             continue
         for waterlevel in dataLevel:
+            wLevel = float(waterlevel.attrib['value'])/100
+            wLevel += 20
             coordinates = [
                 [
                     [
                         5.696969032287598,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.715079307556152,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.715079307556152,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.696969032287598,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.696969032287598,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ]
                 ],
                 [
                     [
                         5.715165138244629,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.732760429382324,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.732760429382324,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.715165138244629,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.715165138244629,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ]
                 ],
                 [
                     [
                         5.732760429382324,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.747652053833008,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.747652053833008,
                         58.99533329399041,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.732760429382324,
                         58.99533329399041,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.732760429382324,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ]
                 ],
                 [
                     [
                         5.747737884521484,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.763959884643555,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.763959884643555,
                         58.990071656325064,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.747737884521484,
                         58.990071656325064,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.747737884521484,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ]
                 ],
                 [
                     [
                         5.7424163818359375,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.764946937561035,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.764946937561035,
                         59.005235372380746,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.7424163818359375,
                         59.005235372380746,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ],
                     [
                         5.7424163818359375,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])/100
+                        wLevel
                     ]
                 ]
             ]
