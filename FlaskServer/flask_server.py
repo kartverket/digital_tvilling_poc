@@ -14,7 +14,7 @@ CORS(app)
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return '<h1>Welcome to our demo python server :) </h1>'
 
 
 @app.route('/yr_weather')
@@ -68,7 +68,7 @@ def yr_weather():
 
     data_frame = pd.DataFrame(data_dict)
 
-    response = make_response(data_frame.to_csv())
+    response = make_response(data_frame.to_csv(index=False))
     response.headers['Content-Type'] = 'text/csv'
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response

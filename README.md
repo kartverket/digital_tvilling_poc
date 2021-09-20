@@ -61,6 +61,5 @@ python flask_server.py
 The server is now running on localhost on the port 5000
 
 
-
 **Adding and commiting changes:**  
 If you want to add and commit changes to a submodule, then the change has to be commited first in the submodule. Then you need to add and commit the change to the pointer to the submodule in the outer repo. 
