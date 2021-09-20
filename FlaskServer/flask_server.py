@@ -124,135 +124,135 @@ def sehavniva_data():
                     [
                         5.696969032287598,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.715079307556152,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.715079307556152,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.696969032287598,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.696969032287598,
                         58.981801744181624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ]
                 ],
                 [
                     [
                         5.715165138244629,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.732760429382324,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.732760429382324,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.715165138244629,
                         58.99531118795094,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.715165138244629,
                         58.97027804881111,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ]
                 ],
                 [
                     [
                         5.732760429382324,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.747652053833008,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.747652053833008,
                         58.99533329399041,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.732760429382324,
                         58.99533329399041,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.732760429382324,
                         58.971406258246624,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ]
                 ],
                 [
                     [
                         5.747737884521484,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.763959884643555,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.763959884643555,
                         58.990071656325064,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.747737884521484,
                         58.990071656325064,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.747737884521484,
                         58.96932678470925,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ]
                 ],
                 [
                     [
                         5.7424163818359375,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.764946937561035,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.764946937561035,
                         59.005235372380746,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.7424163818359375,
                         59.005235372380746,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ],
                     [
                         5.7424163818359375,
                         58.99009376572819,
-                        float(waterlevel.attrib['value'])
+                        float(waterlevel.attrib['value'])/100
                     ]
                 ]
             ]
