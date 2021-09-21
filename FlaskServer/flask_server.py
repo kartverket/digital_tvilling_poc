@@ -120,7 +120,6 @@ def sehavniva_data():
             continue
         for waterlevel in dataLevel:
             wLevel = float(waterlevel.attrib['value'])/100
-            wLevel += 20
             coordinates = [
                 [
                     [
