@@ -73,6 +73,7 @@ def yr_weather():
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
 
+# ----- SeHavNivå API -----
 
 @app.route("/sehavniva")
 def sehavniva_data():
@@ -116,10 +117,11 @@ def sehavniva_data():
     # We use XPath to traverse the xml data
     # We want to return all <data> tags and their children
     for dataLevel in xmlDOM.findall("./locationdata/data"):
-        if not dataLevel.attrib["type"] == "observation":
+        if not dataLevel.attrib["type"] == "prediction":
             continue
         for waterlevel in dataLevel:
             wLevel = float(waterlevel.attrib['value'])/100
+            wLevel += 44.06
             coordinates = [
                 [
                     [
@@ -286,6 +288,24 @@ def makePolygon(coordinates, properties):
                 },
         "properties": properties
     }
+
+# ----- FKB Bygninger API -----
+
+@app.route("/fkbbygg")
+def fkb_bygg():
+    request_core = "https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=100"
+
+    res = requests.get(request_core)
+    data = res.json()
+    for feature in data["features"]:
+        for coordinates in feature["geometry"]["coordinates"]:
+            for array in coordinates:
+                array[2] = float(array[2]) + 44.06
+        feature["properties"]["height"] = 4
+    
+    return jsonify(data)
+
+
 
 
 if __name__ == '__main__':
