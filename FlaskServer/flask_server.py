@@ -73,6 +73,69 @@ def yr_weather():
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
 
+@app.route("/trafikkdata")
+def trafikkdata():
+    registrationPoints = [
+        {"id": "86207V319742", "lat": 58.959297,"lon": 5.739476},
+        {"id": "68351V319882", "lat": 58.96399, "lon": 5.727811}
+    ]
+    currentDate = datetime.now()
+    dateStartOfDay = currentDate.strftime("%Y-%m-%dT00:00:00.0000z")
+    dateEndOfDay = (currentDate + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000z")
+    data = []
+    responses = []
+    request_core = "https://www.vegvesen.no/trafikkdata/api/"
+    for point in registrationPoints:
+        query = makeTrafficPointQuery(point["id"], dateStartOfDay, dateEndOfDay)
+        params = {"query": query}
+        request = requests.post(request_core, json=params)
+        res = request.json()
+        # data.append(request.json())
+        responses.append({**res, **point })
+    
+    for res in responses:
+        values = []
+        for n in res["data"]["trafficData"]["volume"]["byHour"]["edges"]:
+            values.append(n["node"]["total"]["volumeNumbers"]["volume"])
+
+        maxValue = float(max(values))
+        minValue = float(min(values))
+        
+        for n in res["data"]["trafficData"]["volume"]["byHour"]["edges"]:
+            node = n["node"]
+            volume = node["total"]["volumeNumbers"]["volume"]
+            colorValue = 255 * ((float(volume) - minValue)/(maxValue - minValue))
+            gjson = {
+                "type":"Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        res["lon"],
+                        res["lat"]        
+                    ]
+                },
+                "properties":{
+                    "time": node["from"],
+                    "marker-color": f"rgba({255},{255 - colorValue},{255 - colorValue},1)",
+                    "volume": volume,
+                    "coverage": node["total"]["coverage"]
+                }
+            }
+            data.append(gjson)
+
+    geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+        ]
+    }
+    for registrationPoint in data:
+        geoJson['features'].append(
+            registrationPoint
+        )
+    out = make_response(geoJson)
+    out.headers['content-type'] = "application/json"
+    return out
+
 
 @app.route("/sehavniva")
 def sehavniva_data():
@@ -287,6 +350,37 @@ def makePolygon(coordinates, properties):
                 },
         "properties": properties
     }
+
+def makeTrafficPointQuery(id, fro, to):
+    query = '''{
+        trafficData(trafficRegistrationPointId: "%s") {
+            volume {
+                byHour(
+                    from: "%s"
+                    to: "%s"
+                ) {
+                    edges {
+                        node {
+                            from
+                            to
+                            total {
+                            volumeNumbers {
+                                volume
+                            }
+                            coverage {
+                                percentage
+                            }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }''' % (id, fro, to)
+    # query = query.split("\n")
+    # query = [i.strip() for i in query]
+    # query = " ".join(query)
+    return query
 
 
 if __name__ == '__main__':
