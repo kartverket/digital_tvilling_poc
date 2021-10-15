@@ -99,10 +99,10 @@ def ssb_tettsteder():
             xml_string = open('ssb_wms_getcapabilities.xml').read()
             return Response(xml_string, mimetype='text/xml')
 
-        # Fetching stylesheet or metadata. These requests do not have a time parameter. We use 2009 because that is a value which all 
+        # Fetching stylesheet or metadata. These requests do not have a time parameter. We use 2015 because that is a value which all 
         # the layers have in common.
         elif params['request'] == 'GetLegendGraphic' or params['request'] == 'GetMetadata':
-            params['layer'] = layer_dict_dict[params['layer']][2009]
+            params['layer'] = layer_dict_dict[params['layer']][2015]
 
         # Fetching map images
         elif params['request'] == 'GetMap':
