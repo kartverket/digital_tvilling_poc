@@ -73,15 +73,77 @@ def yr_weather():
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
 
+@app.route("/entur")
+def entur():
+    request_core = "https://api.entur.io/realtime/v1/rest/vm?datasetId=RUT"
+    response = requests.get(request_core)
+    xmldom = ElementTree.fromstring(response.text)
+    element = xmldom.getchildren()[0].tag
+    vehicles = xmldom.findall(".//{http://www.siri.org.uk/siri}VehicleActivity", namespaces={})#xmldom.getchildren()[0].getchildren()[2].getchildren()
+    return str(len(vehicles))
+
+    return response.text
+
+
 @app.route("/trafikkdata")
 def trafikkdata():
     registrationPoints = [
-        {"id": "86207V319742", "lat": 58.959297,"lon": 5.739476},
-        {"id": "68351V319882", "lat": 58.96399, "lon": 5.727811}
+        {"id": "86207V319742", "lat": 58.959297,"lon": 5.739476, "coordinates": [
+        [
+            5.740227699279785,
+            58.95879475834689
+        ],
+        [
+            5.734305381774902,
+            58.96510108499433
+        ],
+        [
+            5.733790397644043,
+            58.964946206578034
+        ],
+        [
+            5.7397985458374015,
+            58.95868411074145
+        ],
+        [
+            5.740227699279785,
+            58.95879475834689
+        ]
+    ]},
+        {"id": "68351V319882", "lat": 58.96399, "lon": 5.727811, "coordinates": [
+        [
+            5.724155902862549,
+            58.96288847015915
+        ],
+        [
+            5.724359750747681,
+            58.96270039134999
+        ],
+        [
+            5.728018283843994,
+            58.96393394836543
+        ],
+        [
+            5.728576183319091,
+            58.96448156715433
+        ],
+        [
+            5.728222131729126,
+            58.96451475589226
+        ],
+        [
+            5.727417469024658,
+            58.963950543002
+        ],
+        [
+            5.724155902862549,
+            58.96288847015915
+        ]
+    ]}
     ]
     currentDate = datetime.now()
-    dateStartOfDay = currentDate.strftime("%Y-%m-%dT00:00:00.0000z")
-    dateEndOfDay = (currentDate + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000z")
+    dateStartOfDay = (currentDate - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000+02:00")
+    dateEndOfDay = (currentDate + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000+02:00")
     data = []
     responses = []
     request_core = "https://www.vegvesen.no/trafikkdata/api/"
@@ -104,19 +166,17 @@ def trafikkdata():
         for n in res["data"]["trafficData"]["volume"]["byHour"]["edges"]:
             node = n["node"]
             volume = node["total"]["volumeNumbers"]["volume"]
-            colorValue = 255 * ((float(volume) - minValue)/(maxValue - minValue))
+            colorValue = (255) * ((float(volume) - minValue)/(maxValue - minValue))
             gjson = {
                 "type":"Feature",
                 "geometry": {
-                    "type": "Point",
-                    "coordinates": [
-                        res["lon"],
-                        res["lat"]        
-                    ]
+                    "type": "Polygon",
+                    "coordinates": [res["coordinates"]]
                 },
                 "properties":{
                     "time": node["from"],
-                    "marker-color": f"rgba({255},{255 - colorValue},{255 - colorValue},1)",
+                    # "stroke-width": 2,
+                    "fill": f"rgba({255 - colorValue},{255 - colorValue},{255},.8)",
                     "volume": volume,
                     "coverage": node["total"]["coverage"]
                 }
