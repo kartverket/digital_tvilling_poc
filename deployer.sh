@@ -28,7 +28,7 @@ terriamap () {
     cd ..
 }
 
-if [ $1 = "flask" ]
+if [ $1 == "flask" ]
 then 
 
     flask
