@@ -75,14 +75,30 @@ def yr_weather():
 
 @app.route("/entur")
 def entur():
-    request_core = "https://api.entur.io/realtime/v1/rest/vm?datasetId=RUT"
+    request_core = "https://api.entur.io/realtime/v1/rest/vm?datasetId=RUT&maxSize=10&requestorId=d25e6deb-cbd8-4ffc-b297-a1d819c685f0"
     response = requests.get(request_core)
     xmldom = ElementTree.fromstring(response.text)
-    element = xmldom.getchildren()[0].tag
-    vehicles = xmldom.findall(".//{http://www.siri.org.uk/siri}VehicleActivity", namespaces={})#xmldom.getchildren()[0].getchildren()[2].getchildren()
-    return str(len(vehicles))
+    vehicles = xmldom.findall(".//{http://www.siri.org.uk/siri}VehicleActivity", namespaces={})
+    data = {
+        "latitude": [],
+        "longitude": [],
+        "route": []
+    }
+    for vehicle in vehicles:
+        long = vehicle.find(".//{http://www.siri.org.uk/siri}VehicleLocation/{http://www.siri.org.uk/siri}Longitude").text
+        lat = vehicle.find(".//{http://www.siri.org.uk/siri}VehicleLocation/{http://www.siri.org.uk/siri}Latitude").text
+        if float(lat) <= 0 and float(long) <= 0:
+            continue
+        data["latitude"].append(lat)
+        data["longitude"].append(long)
+        data["route"].append(vehicle.find(".//{http://www.siri.org.uk/siri}LineRef").text)
 
-    return response.text
+    data_frame = pd.DataFrame(data)
+    out = make_response(data_frame.to_csv(index=False))
+    out.headers.add_header("Content-Type", "text/csv")
+    out.headers['Content-Disposition'] = 'attachment; filename="entur.csv"'
+
+    return out
 
 
 @app.route("/trafikkdata")
