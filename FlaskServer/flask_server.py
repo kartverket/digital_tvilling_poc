@@ -7,6 +7,7 @@ from flask_cors import CORS
 import requests
 import pandas as pd
 import copy
+import pyproj
 
 app = Flask(__name__)
 CORS(app)
@@ -124,6 +125,26 @@ def ssb_tettsteder():
 
     response = Response(resp.content, resp.status_code, headers)
     return response
+
+@app.route('/proj')
+def proj():
+    fr = request.args.get("from")
+    to = request.args.get("to")
+    print(fr, to)
+    if fr == None:
+        fr = "epsg:5972"
+    if to == None:
+        to = "epsg:4326"
+    points = request.args.get("points")
+    points = [float(x) for x in points.split(",")]
+    print(points)
+    converted = []
+    for i in range(0, len(points), 3):
+        x = points[i]
+        y = points[i+1]
+        z = points[i+2]
+        converted.append(pyproj.transform(fr, to,x,y,z))
+    return make_response({"points": converted})
 
 @app.route('/yr_weather')
 def yr_weather():
@@ -395,6 +416,8 @@ def makePolygon(coordinates, properties):
                 },
         "properties": properties
     }
+
+
 
 
 if __name__ == '__main__':
