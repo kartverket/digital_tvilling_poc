@@ -135,16 +135,18 @@ def proj():
         fr = "epsg:5972"
     if to == None:
         to = "epsg:4326"
+    tran = pyproj.Transformer.from_crs(fr, to)
     points = request.args.get("points")
     points = [float(x) for x in points.split(",")]
-    print(points)
     converted = []
     for i in range(0, len(points), 3):
-        x = points[i]
-        y = points[i+1]
-        z = points[i+2]
-        converted.append(pyproj.transform(fr, to,x,y,z))
-    return make_response({"points": converted})
+        xx = (points[i])
+        yy = (points[i+1])
+        zz = (points[i+2])
+        converted.append(tran.transform(xx, yy, zz))
+    out =  make_response({"points": converted})
+    out.headers.add("content-type", "application/json")
+    return out
 
 @app.route('/yr_weather')
 def yr_weather():
