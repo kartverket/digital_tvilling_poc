@@ -130,7 +130,6 @@ def ssb_tettsteder():
 def proj():
     fr = request.args.get("from")
     to = request.args.get("to")
-    print(fr, to)
     if fr == None:
         fr = "epsg:5972"
     if to == None:
@@ -145,6 +144,26 @@ def proj():
         zz = (points[i+2])
         converted.append(tran.transform(xx, yy, zz))
     out =  make_response({"points": converted})
+    out.headers.add("content-type", "application/json")
+    return out
+
+@app.route('/fkbbygg')
+def fkbbygg():
+    trans = pyproj.Transformer.from_crs("epsg:5942", "epsg:4326")
+    req = requests.get("https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=1000")
+    data = req.json()
+    newFeatures = []
+    for feature in data["features"]:
+        transformedCoordinates = []
+        for coordinate in feature["geometry"]["coordinates"][0]:
+            transformedPoint = trans.transform(coordinate[1], coordinate[0], coordinate[2])
+            transformedCoordinates.append([transformedPoint[1], transformedPoint[0], transformedPoint[2]])
+        newFeature = {**feature}
+        newFeature["geometry"]["coordinates"][0] = transformedCoordinates
+        newFeatures.append(newFeature)
+    data["features"] = newFeatures
+
+    out = make_response(data)
     out.headers.add("content-type", "application/json")
     return out
 
@@ -243,7 +262,7 @@ def sehavniva_data():
         "features": [
         ]
     }
-
+    tran = pyproj.Transformer.from_crs("epsg:5942", "epsg:4326")
     # We use XPath to traverse the xml data
     # We want to return all <data> tags and their children
     for dataLevel in xmlDOM.findall("./locationdata/data"):
@@ -251,7 +270,7 @@ def sehavniva_data():
             continue
         for waterlevel in dataLevel:
             wLevel = float(waterlevel.attrib['value'])/100
-            wLevel += 44.06
+            # wLevel += 44.06
             coordinates = [
                 [
                     [
@@ -399,11 +418,15 @@ def sehavniva_data():
             }
 
             for coordinate in coordinates:
-                data["features"].append(makePolygon(coordinate, props))
+                
+                transformedCoordinates = []
+                for point in coordinate:
+                    transformedPoint = tran.transform(point[1], point[0], point[2])
+                    transformedCoordinates.append([transformedPoint[1], transformedPoint[0], transformedPoint[2]])
+                data["features"].append(makePolygon(transformedCoordinates, props))
 
     out = make_response(jsonify(data))
     out.headers['Content-Type'] = "application/json"
-
     return out
 
 
@@ -418,7 +441,6 @@ def makePolygon(coordinates, properties):
                 },
         "properties": properties
     }
-
 
 
 
