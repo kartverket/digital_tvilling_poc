@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from xml.etree import ElementTree
 from flask import Flask, jsonify, request, send_file
 from flask.helpers import make_response
@@ -153,6 +153,7 @@ def fkbbygg():
     req = requests.get("https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=1000")
     data = req.json()
     newFeatures = []
+    # t = datetime.now()
     for feature in data["features"]:
         transformedCoordinates = []
         for coordinate in feature["geometry"]["coordinates"][0]:
@@ -162,10 +163,14 @@ def fkbbygg():
         newFeature["geometry"]["coordinates"][0] = transformedCoordinates
         newFeatures.append(newFeature)
     data["features"] = newFeatures
-
+    # print("FKB time elapsed: ", datetime.now() - t) # Benchmarking Proj
     out = make_response(data)
     out.headers.add("content-type", "application/json")
     return out
+
+
+
+
 
 @app.route('/yr_weather')
 def yr_weather():
@@ -265,6 +270,7 @@ def sehavniva_data():
     tran = pyproj.Transformer.from_crs("epsg:5942", "epsg:4326")
     # We use XPath to traverse the xml data
     # We want to return all <data> tags and their children
+    # t = datetime.now() # Benchmarking PROJ
     for dataLevel in xmlDOM.findall("./locationdata/data"):
         if not dataLevel.attrib["type"] == "observation":
             continue
@@ -424,7 +430,7 @@ def sehavniva_data():
                     transformedPoint = tran.transform(point[1], point[0], point[2])
                     transformedCoordinates.append([transformedPoint[1], transformedPoint[0], transformedPoint[2]])
                 data["features"].append(makePolygon(transformedCoordinates, props))
-
+    # print("Sehav time elapsed: ", datetime.now() - t)
     out = make_response(jsonify(data))
     out.headers['Content-Type'] = "application/json"
     return out
