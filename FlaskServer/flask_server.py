@@ -153,7 +153,6 @@ def fkbbygg():
     req = requests.get("https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=1000")
     data = req.json()
     newFeatures = []
-    # t = datetime.now()
     for feature in data["features"]:
         transformedCoordinates = []
         for coordinate in feature["geometry"]["coordinates"][0]:
@@ -163,7 +162,6 @@ def fkbbygg():
         newFeature["geometry"]["coordinates"][0] = transformedCoordinates
         newFeatures.append(newFeature)
     data["features"] = newFeatures
-    # print("FKB time elapsed: ", datetime.now() - t) # Benchmarking Proj
     out = make_response(data)
     out.headers.add("content-type", "application/json")
     return out
