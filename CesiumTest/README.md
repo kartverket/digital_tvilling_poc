@@ -1,5 +1,6 @@
 For å kjøre Cesium test serveren:
 ```
+cd cesium
 npm install
 npm run build (eller npm run build-watch for kontinuerlig bygging av forandringer på serveren)
 npm start
