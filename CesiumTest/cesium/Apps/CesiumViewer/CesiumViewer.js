@@ -21,13 +21,102 @@ import * as Cesium from "../../Source/Cesium.js";
 
 Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkN2M3YTM1NC01ODcwLTQ4NDctODRiZC1iNmExMGNiNmQ3NzIiLCJpZCI6NjQzMjgsImlhdCI6MTYyOTExMDA5OH0.FERRrGiOOzThBx1XokWAAEIDCLG7MuF0Dh-QMccG_yY";
 const terrainAssetID = 608730;
+const osmBuildingAssetID = 96188;
+const treeAssetID = 655651;
+const lilleTorgetID_kristian = 655667;
+
+const move_info = (viewer) => {
+
+  // Information about the currently selected feature
+  var selected = {
+    feature: undefined,
+    originalColor: new Cesium.Color(),
+  };
+
+  // An entity object which will hold info about the currently selected feature for infobox display
+  var selectedEntity = new Cesium.Entity();
+
+   // Get default left click handler for when a feature is not picked on left click
+   var clickHandler = viewer.screenSpaceEventHandler.getInputAction(
+    Cesium.ScreenSpaceEventType.LEFT_CLICK
+  );
+
+  // Silhouettes are supported
+  var silhouetteBlue = Cesium.PostProcessStageLibrary.createEdgeDetectionStage();
+  silhouetteBlue.uniforms.color = Cesium.Color.BLUE;
+  silhouetteBlue.uniforms.length = 0.01;
+  silhouetteBlue.selected = [];
+
+  var silhouetteGreen = Cesium.PostProcessStageLibrary.createEdgeDetectionStage();
+  silhouetteGreen.uniforms.color = Cesium.Color.LIME;
+  silhouetteGreen.uniforms.length = 0.01;
+  silhouetteGreen.selected = [];
+
+  viewer.scene.postProcessStages.add(
+    Cesium.PostProcessStageLibrary.createSilhouetteStage([
+      silhouetteBlue,
+      silhouetteGreen,
+    ])
+  );
+
+  const originalLeftClickHandler = viewer.screenSpaceEventHandler.getInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  // Silhouette a feature on selection and show metadata in the InfoBox.
+  viewer.screenSpaceEventHandler.setInputAction(function onLeftClick(
+    movement
+  ) {
+
+    originalLeftClickHandler(movement);
+
+    // If a feature was previously selected, undo the highlight
+    silhouetteGreen.selected = [];
+
+    // Pick a new feature
+    var pickedFeature = viewer.scene.pick(movement.position);
+    console.log('pickedFeatured', pickedFeature);
+    if (!Cesium.defined(pickedFeature)) {
+      clickHandler(movement);
+      return;
+    }
+
+    // Select the feature if it's not already selected
+    if (silhouetteGreen.selected[0] === pickedFeature) {
+      return;
+    }
+
+    // Save the selected feature's original color
+    var highlightedFeature = silhouetteBlue.selected[0];
+    if (pickedFeature === highlightedFeature) {
+      silhouetteBlue.selected = [];
+    }
+
+    // Highlight newly selected feature
+    silhouetteGreen.selected = [pickedFeature];
+
+  },
+  Cesium.ScreenSpaceEventType.LEFT_CLICK);
+};
+
+function entityChangedListen(viewer){
+  viewer.selectedEntityChanged.addEventListener((e) => {
+    console.log('entity changed');
+    console.log(e);
+  });
+}
+
+function leftClickOverride(viewer){
+  console.log(viewer);
+}
 
 function custom(viewer, scene){
+
   var tileset = scene.primitives.add(
     new Cesium.Cesium3DTileset({
-      url: Cesium.IonResource.fromAssetId(647946),
+      url: Cesium.IonResource.fromAssetId(treeAssetID),
     })
   );  
+
+  console.log('tileset 1', tileset);
+    
   tileset.readyPromise
   .then(function (tileset) {
     viewer.zoomTo(
@@ -42,6 +131,14 @@ function custom(viewer, scene){
   .otherwise(function (error) {
     console.log(error);
   });
+
+  var osmbuildingtileset = scene.primitives.add(
+    new Cesium.Cesium3DTileset({
+      url: Cesium.IonResource.fromAssetId(osmBuildingAssetID)
+    })
+  );
+
+  console.log('tileset osmbuildings', osmbuildingtileset);
 
 }
 
@@ -273,6 +370,9 @@ function main() {
 
 
   custom(viewer, scene);
+  leftClickOverride(viewer);
+  entityChangedListen(viewer);
+  move_info(viewer);
 }
 
 main();
