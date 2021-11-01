@@ -270,7 +270,7 @@ def sehavniva_data():
     # We want to return all <data> tags and their children
     # t = datetime.now() # Benchmarking PROJ
     for dataLevel in xmlDOM.findall("./locationdata/data"):
-        if not dataLevel.attrib["type"] == "observation":
+        if not dataLevel.attrib["type"] == "prediction":
             continue
         for waterlevel in dataLevel:
             wLevel = float(waterlevel.attrib['value'])/100
