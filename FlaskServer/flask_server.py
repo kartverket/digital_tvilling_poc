@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from xml.etree import ElementTree
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_file
 from flask.helpers import make_response
 from flask.wrappers import Response
 from flask_cors import CORS
@@ -16,6 +16,114 @@ CORS(app)
 def hello():
     return '<h1>Welcome to our demo python server :) </h1>'
 
+
+tettsted_time_layer_dict = {
+    2021: 'layer_293',
+    2020: 'layer_273',
+    2019: 'layer_233',
+    2018: 'layer_212',
+    2017: 'layer_198',
+    2016: 'layer_166',
+    2015: 'layer_140',
+    2014: 'layer_40',
+    2013: 'layer_39',
+    2012: 'layer_38',
+    2011: 'layer_13',
+    2009: 'layer_48',
+    2008: 'layer_49',
+    2007: 'layer_50',
+    2006: 'layer_51',
+    2005: 'layer_52',
+    2004: 'layer_53',
+    2003: 'layer_54'
+}
+
+boliger_1km_layer_dict = {
+    2021: 'layer_289',
+    2020: 'layer_261',
+    2019: 'layer_222',
+    2018: 'layer_205',
+    2017: 'layer_190',
+    2016: 'layer_155',
+    2015: 'layer_154',
+    2014: 'layer_121',
+    2013: 'layer_44',
+    2012: 'layer_74',
+    2011: 'layer_75',
+    2010: 'layer_76',
+    2009: 'layer_77',
+    2008: 'layer_78',
+}
+
+befolkning_1km_layer_dict = {
+    2019: 'layer_225',
+    2018: 'layer_208',
+    2017: 'layer_181',
+    2016: 'layer_146',
+    2015: 'layer_119',
+    2014: 'layer_32',
+    2013: 'layer_31',
+    2012: 'layer_30',
+    2011: 'layer_29',
+    2010: 'layer_25',
+    2009: 'layer_24',
+    2008: 'layer_23',
+}
+
+landbruk_1km_layer_dict = {
+    2015: 'layer_171',
+    2014: 'layer_143',
+    2013: 'layer_98'
+}
+
+layer_dict_dict = {
+    'layer_tettsted': tettsted_time_layer_dict,
+    'layer_bolig': boliger_1km_layer_dict,
+    'layer_befolkning': befolkning_1km_layer_dict,
+    'layer_landbruk': landbruk_1km_layer_dict
+}
+
+
+@app.route('/ssb_tettsteder')
+def ssb_tettsteder():
+
+    ssb_path = 'https://ogc.ssb.no/wms.ashx'
+    #request.url.replace(request.host_url + 'ssb_tettsteder', ssb_path)
+
+    params = request.args.to_dict()
+
+    if 'request' in params:
+
+        # Fetching the get_capabilities file
+        if params['request'] == 'GetCapabilities' and params['service'] == 'WMS':
+            xml_string = open('ssb_wms_getcapabilities.xml').read()
+            return Response(xml_string, mimetype='text/xml')
+
+        # Fetching stylesheet or metadata. These requests do not have a time parameter. We use 2015 because that is a value which all 
+        # the layers have in common.
+        elif params['request'] == 'GetLegendGraphic' or params['request'] == 'GetMetadata':
+            params['layer'] = layer_dict_dict[params['layer']][2015]
+
+        # Fetching map images
+        elif params['request'] == 'GetMap':
+            params['layers'] = layer_dict_dict[params['layers']][int(params['time'])]
+            del params['time']
+
+    resp = requests.get(
+        url=ssb_path,
+        headers={key: value for (key, value) in request.headers if key != 'Host'},
+        data=request.get_data(),
+        cookies=request.cookies,
+        allow_redirects=False,
+        params=params
+    )
+
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+               if name.lower() not in excluded_headers]
+
+    response = Response(resp.content, resp.status_code, headers)
+    return response
 
 @app.route('/yr_weather')
 def yr_weather():
