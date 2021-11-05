@@ -91,7 +91,8 @@ def entur():
             continue
         data["latitude"].append(lat)
         data["longitude"].append(long)
-        data["route"].append(vehicle.find(".//{http://www.siri.org.uk/siri}LineRef").text)
+        linje_data = vehicle.find(".//{http://www.siri.org.uk/siri}LineRef").text
+        data["route"].append("Linje "+ linje_data.split(":")[-1])
 
     data_frame = pd.DataFrame(data)
     out = make_response(data_frame.to_csv(index=False))
