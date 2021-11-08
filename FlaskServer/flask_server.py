@@ -226,6 +226,146 @@ def yr_weather():
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
 
+@app.route("/entur")
+def entur():
+    request_core = "https://api.entur.io/realtime/v1/rest/vm?datasetId=RUT&maxSize=10&requestorId=d25e6deb-cbd8-4ffc-b297-a1d819c685f0"
+    response = requests.get(request_core)
+    xmldom = ElementTree.fromstring(response.text)
+    vehicles = xmldom.findall(".//{http://www.siri.org.uk/siri}VehicleActivity", namespaces={})
+    data = {
+        "latitude": [],
+        "longitude": [],
+        "route": []
+    }
+    for vehicle in vehicles:
+        long = vehicle.find(".//{http://www.siri.org.uk/siri}VehicleLocation/{http://www.siri.org.uk/siri}Longitude").text
+        lat = vehicle.find(".//{http://www.siri.org.uk/siri}VehicleLocation/{http://www.siri.org.uk/siri}Latitude").text
+        if float(lat) <= 0 and float(long) <= 0:
+            continue
+        data["latitude"].append(lat)
+        data["longitude"].append(long)
+        linje_data = vehicle.find(".//{http://www.siri.org.uk/siri}LineRef").text
+        data["route"].append("Linje "+ linje_data.split(":")[-1])
+
+    data_frame = pd.DataFrame(data)
+    out = make_response(data_frame.to_csv(index=False))
+    out.headers.add_header("Content-Type", "text/csv")
+    out.headers['Content-Disposition'] = 'attachment; filename="entur.csv"'
+
+    return out
+
+
+@app.route("/trafikkdata")
+def trafikkdata():
+    registrationPoints = [
+        {"id": "86207V319742", "lat": 58.959297,"lon": 5.739476, "coordinates": [
+        [
+            5.740227699279785,
+            58.95879475834689
+        ],
+        [
+            5.734305381774902,
+            58.96510108499433
+        ],
+        [
+            5.733790397644043,
+            58.964946206578034
+        ],
+        [
+            5.7397985458374015,
+            58.95868411074145
+        ],
+        [
+            5.740227699279785,
+            58.95879475834689
+        ]
+    ]},
+        {"id": "68351V319882", "lat": 58.96399, "lon": 5.727811, "coordinates": [
+        [
+            5.724155902862549,
+            58.96288847015915
+        ],
+        [
+            5.724359750747681,
+            58.96270039134999
+        ],
+        [
+            5.728018283843994,
+            58.96393394836543
+        ],
+        [
+            5.728576183319091,
+            58.96448156715433
+        ],
+        [
+            5.728222131729126,
+            58.96451475589226
+        ],
+        [
+            5.727417469024658,
+            58.963950543002
+        ],
+        [
+            5.724155902862549,
+            58.96288847015915
+        ]
+    ]}
+    ]
+    currentDate = datetime.now()
+    dateStartOfDay = (currentDate - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000+02:00")
+    dateEndOfDay = (currentDate + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000+02:00")
+    data = []
+    responses = []
+    request_core = "https://www.vegvesen.no/trafikkdata/api/"
+    for point in registrationPoints:
+        query = makeTrafficPointQuery(point["id"], dateStartOfDay, dateEndOfDay)
+        params = {"query": query}
+        request = requests.post(request_core, json=params)
+        res = request.json()
+        # data.append(request.json())
+        responses.append({**res, **point })
+    
+    for res in responses:
+        values = []
+        for n in res["data"]["trafficData"]["volume"]["byHour"]["edges"]:
+            values.append(n["node"]["total"]["volumeNumbers"]["volume"])
+
+        maxValue = float(max(values))
+        minValue = float(min(values))
+        
+        for n in res["data"]["trafficData"]["volume"]["byHour"]["edges"]:
+            node = n["node"]
+            volume = node["total"]["volumeNumbers"]["volume"]
+            colorValue = (255) * ((float(volume) - minValue)/(maxValue - minValue))
+            gjson = {
+                "type":"Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [res["coordinates"]]
+                },
+                "properties":{
+                    "time": node["from"],
+                    # "stroke-width": 2,
+                    "fill": f"rgba({255 - colorValue},{255 - colorValue},{255},.8)",
+                    "volume": volume,
+                    "coverage": node["total"]["coverage"]
+                }
+            }
+            data.append(gjson)
+
+    geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+        ]
+    }
+    for registrationPoint in data:
+        geoJson['features'].append(
+            registrationPoint
+        )
+    out = make_response(geoJson)
+    out.headers['content-type'] = "application/json"
+    return out
+
 
 @app.route("/sehavniva")
 def sehavniva_data():
@@ -445,6 +585,37 @@ def makePolygon(coordinates, properties):
                 },
         "properties": properties
     }
+
+def makeTrafficPointQuery(id, fro, to):
+    query = '''{
+        trafficData(trafficRegistrationPointId: "%s") {
+            volume {
+                byHour(
+                    from: "%s"
+                    to: "%s"
+                ) {
+                    edges {
+                        node {
+                            from
+                            to
+                            total {
+                            volumeNumbers {
+                                volume
+                            }
+                            coverage {
+                                percentage
+                            }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }''' % (id, fro, to)
+    # query = query.split("\n")
+    # query = [i.strip() for i in query]
+    # query = " ".join(query)
+    return query
 
 
 
