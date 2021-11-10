@@ -85,11 +85,10 @@ layer_dict_dict = {
 }
 
 
-@app.route('/ssb_tettsteder')
-def ssb_tettsteder():
+@app.route('/ssb')
+def ssb():
 
     ssb_path = 'https://ogc.ssb.no/wms.ashx'
-    #request.url.replace(request.host_url + 'ssb_tettsteder', ssb_path)
 
     params = request.args.to_dict()
 
