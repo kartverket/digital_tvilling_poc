@@ -149,7 +149,14 @@ def proj():
 @app.route('/fkbbygg')
 def fkbbygg():
     trans = pyproj.Transformer.from_crs("epsg:5942", "epsg:4326")
-    req = requests.get("https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=1000")
+    limit = request.args.get("limit")
+    if limit == None:
+        limit = 1000
+    bbox = request.args.get("bbox")
+    if bbox == None:
+        req = requests.get("https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit=1000")
+    else:
+        req = requests.get(f"https://ogcapitest.kartverket.no/pygeoapi/collections/dttest/items?f=json&limit={limit}&bbox={bbox}")
     data = req.json()
     newFeatures = []
     for feature in data["features"]:
