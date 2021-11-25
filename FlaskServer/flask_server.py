@@ -617,6 +617,327 @@ def makeTrafficPointQuery(id, fro, to):
     return query
 
 
+@app.route("/sehavniva_czml")
+def sehavnivaCZML():
+    currentDate = datetime.now()
+    stavanger_cords = {
+        'lat': 58.97,
+        'lon': 5.7331
+    }
+
+    data, waterLevels, waterLevels_prop = create_sehavniva_request_czml(stavanger_cords, currentDate)
+
+    coordinates = [
+        [
+            5.696969032287598,
+            58.981801744181624,
+            0,
+            5.715079307556152,
+            58.981801744181624,
+            0,
+            5.715079307556152,
+            58.99531118795094,
+            0,
+            5.696969032287598,
+            58.99531118795094,
+            0,
+            5.696969032287598,
+            58.981801744181624,
+            0
+        ],
+        [
+            5.715165138244629,
+            58.97027804881111,
+            0,
+            5.732760429382324,
+            58.97027804881111,
+            0,
+            5.732760429382324,
+            58.99531118795094,
+            0,
+            5.715165138244629,
+            58.99531118795094,
+            0,
+            5.715165138244629,
+            58.97027804881111,
+            0
+        ],
+        [
+            5.732760429382324,
+            58.971406258246624,
+            0,
+            5.747652053833008,
+            58.971406258246624,
+            0,
+            5.747652053833008,
+            58.99533329399041,
+            0,
+            5.732760429382324,
+            58.99533329399041,
+            0,
+            5.732760429382324,
+            58.971406258246624,
+            0
+        ],
+        [
+            5.747737884521484,
+            58.96932678470925,
+            0,
+            5.763959884643555,
+            58.96932678470925,
+            0,
+            5.763959884643555,
+            58.990071656325064,
+            0,
+            5.747737884521484,
+            58.990071656325064,
+            0,
+            5.747737884521484,
+            58.96932678470925,
+            0
+        ],
+        [
+            5.7424163818359375,
+            58.99009376572819,
+            0,
+            5.764946937561035,
+            58.99009376572819,
+            0,
+            5.764946937561035,
+            59.005235372380746,
+            0,
+            5.7424163818359375,
+            59.005235372380746,
+            0,
+            5.7424163818359375,
+            58.99009376572819,
+            0
+        ]
+    ]
+    i = 0
+    for cordList in coordinates:
+        entity = {
+            "id": f"sea_polygon_{i}",
+            "availability": f"{currentDate.strftime('%Y-%m-%dT00:00:00Z')}/{(currentDate + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')}",
+            "properties": {
+                "Vannstand": waterLevels_prop
+            },
+            "polygon": {
+                "positions": {"cartographicDegrees": cordList},
+                "height": waterLevels,
+                "fill": True,
+                "material": {
+                    "solidColor": {
+                        "color": {
+                            "rgba": [0, 0, 255, 180]
+                        }
+                    }
+                }
+            }
+        }
+        data.append(entity)
+        i += 1
+    out = make_response(jsonify(data))
+    out.headers['Content-Type'] = "application/json"
+    return out
+
+@app.route("/sehavniva_oslo")
+def sehavniva_oslo():
+    currentDate = datetime.now()
+    oslo_cords = {
+        'lat': 59.902804843937425,
+        'lon': 10.729602602912532,
+    }
+
+    data, waterLevels, waterLevels_prop = create_sehavniva_request_czml(oslo_cords, currentDate)
+    
+    coordinates = [
+        [
+            10.682315826416016,
+            59.87989320300801,
+            0,
+            10.715188980102539,
+            59.87989320300801,
+            0,
+            10.715188980102539,
+            59.919150813447,
+            0,
+            10.682315826416016,
+            59.919150813447,
+            0,
+            10.682315826416016,
+            59.87989320300801,
+            0
+        ],
+        # [
+        #     10.649099349975586,
+        #     59.90133567536662,
+        #     0,
+        #     10.677080154418945,
+        #     59.90133567536662,
+        #     0,
+        #     10.677080154418945,
+        #     59.92044139404012,
+        #     0,
+        #     10.649099349975586,
+        #     59.92044139404012,
+        #     0,
+        #     10.649099349975586,
+        #     59.90133567536662,
+        #     0
+        # ],
+        # [
+        #     10.636911392211914,
+        #     59.89974303579225,
+        #     0,
+        #     10.649099349975586,
+        #     59.89974303579225,
+        #     0,
+        #     10.649099349975586,
+        #     59.9136437723292,
+        #     0,
+        #     10.636911392211914,
+        #     59.9136437723292,
+        #     0,
+        #     10.636911392211914,
+        #     59.89974303579225,
+        #     0
+        # ],
+        # [
+        #     10.632104873657227,
+        #     59.879936274048134,
+        #     0,
+        #     10.682229995727539,
+        #     59.879936274048134,
+        #     0,
+        #     10.682229995727539,
+        #     59.90318648486657,
+        #     0,
+        #     10.632104873657227,
+        #     59.90318648486657,
+        #     0,
+        #     10.632104873657227,
+        #     59.879936274048134,
+        #     0
+        # ],
+        # [
+        #     10.713729858398438,
+        #     59.87670579116358,
+        #     0,
+        #     10.777244567871094,
+        #     59.87670579116358,
+        #     0,
+        #     10.777244567871094,
+        #     59.912697157616044,
+        #     0,
+        #     10.713729858398438,
+        #     59.912697157616044,
+        #     0,
+        #     10.713729858398438,
+        #     59.87670579116358,
+        #     0
+        # ]
+    ]
+    i = 0
+    for cordList in coordinates:
+        entity = {
+            "id": f"sea_polygon_{i}",
+            "availability": f"{currentDate.strftime('%Y-%m-%dT00:00:00Z')}/{(currentDate + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')}",
+            "properties": {
+                "Vannstand": waterLevels_prop
+            },
+            "polygon": {
+                "positions": {"cartographicDegrees": cordList},
+                "height": waterLevels,
+                "fill": True,
+                "material": {
+                    "solidColor": {
+                        "color": {
+                            "rgba": [0, 0, 255, 180]
+                        }
+                    }
+                }
+            }
+        }
+        data.append(entity)
+        i += 1
+    out = make_response(jsonify(data))
+    out.headers['Content-Type'] = "application/json"
+    return out
+
+def create_sehavniva_request_czml(cords, currentDate):
+    params = {
+        'lat': cords["lat"],
+        'lon': cords["lon"],
+        'fromtime': currentDate.strftime("%Y-%m-%dT00:00:00.0000z"),
+        'totime': (currentDate + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00.0000z"),
+        'datatype': "all",
+        'refcode': "msl",
+        'place': "",
+        'file': "",
+        'lang': "no",
+        'interval': 10,
+        'dst': 0,
+        'tzone': "",
+        'tide_request': "locationdata"
+    }
+
+    request_core = "http://api.sehavniva.no/tideapi.php"
+
+    headers = {
+        'User-Agent': 'Digital tvilling POC',
+        'From': 'https://kartverket.no/'
+    }
+
+    response = requests.get(request_core, params, headers=headers)
+
+    # We use the included ElementTree library to parse and traverse the XML output
+    # As we receive the XML data in the form of a text response, we need to use the fromstring
+    # function to parse the data.
+    xmlDOM = ElementTree.fromstring(response.text)
+
+    data = [
+        {
+            "id": "document",
+            "version": "1.0",
+            "clock": {
+                "interval": f"{currentDate.strftime('%Y-%m-%dT00:00:00Z')}/{(currentDate + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')}",
+                "multiplier": 360,
+                "currentTime": currentDate.strftime('%Y-%m-%dT00:00:00Z')
+            }
+        }
+    ]
+
+    tran = pyproj.Transformer.from_crs("epsg:5942", "epsg:4326")
+
+    heightOffset = tran.transform(cords["lat"], cords["lon"], 0)[2]
+    # We use XPath to traverse the xml data
+    # We want to return all <data> tags and their children
+    # t = datetime.now() # Benchmarking PROJ
+    waterLevels = {
+        "epoch": currentDate.strftime("%Y-%m-%dT00:00:00Z"),
+        "number": []
+    }
+
+    waterLevels_prop = {
+        "epoch": currentDate.strftime("%Y-%m-%dT00:00:00Z"),
+        "number": []
+    }
+    
+    currentTime = 0
+
+    for dataLevel in xmlDOM.findall("./locationdata/data"):
+        if not dataLevel.attrib["type"] == "prediction":
+            continue
+        for waterlevel in dataLevel:
+            wLevel = float(waterlevel.attrib['value'])/100
+            waterLevels["number"].append(currentTime)
+            waterLevels_prop["number"].append(currentTime)
+            currentTime += 3600
+            waterLevels["number"].append(wLevel + heightOffset)
+            waterLevels_prop["number"].append(wLevel)
+    return data, waterLevels, waterLevels_prop
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
