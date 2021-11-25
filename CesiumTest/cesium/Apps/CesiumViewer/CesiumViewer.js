@@ -20,7 +20,7 @@ import {
 import * as Cesium from "../../Source/Cesium.js";
 
 Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkN2M3YTM1NC01ODcwLTQ4NDctODRiZC1iNmExMGNiNmQ3NzIiLCJpZCI6NjQzMjgsImlhdCI6MTYyOTExMDA5OH0.FERRrGiOOzThBx1XokWAAEIDCLG7MuF0Dh-QMccG_yY";
-const terrainAssetID = 608730;
+const terrainAssetID = 670554;
 const osmBuildingAssetID = 96188;
 const treeAssetID = 655651;
 const lilleTorgetID_kristian = 655667;
@@ -109,6 +109,7 @@ function leftClickOverride(viewer){
 
 function custom(viewer, scene){
 
+  /*
   var tileset = scene.primitives.add(
     new Cesium.Cesium3DTileset({
       url: Cesium.IonResource.fromAssetId(treeAssetID),
@@ -139,7 +140,58 @@ function custom(viewer, scene){
   );
 
   console.log('tileset osmbuildings', osmbuildingtileset);
+  */
 
+
+
+  var akerselvaDataSource = new Cesium.CzmlDataSource.load(
+    "http://localhost:8080/Apps/CesiumViewer/akerselva_polygon.czml"
+  ).then((data) => {
+    viewer.dataSources.add(data);
+    viewer.zoomTo(data);
+  });
+
+
+  let akers_json = null;
+  fetch("http://localhost:8080/Apps/CesiumViewer/Akerselva_linestring.json").then(
+    response => {
+      return response.json();
+    }).then(
+    json => {akers_json = json;use_akers_json(viewer, scene, akers_json);}
+  )
+
+}
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+
+function use_akers_json(viewer, scene, akers_json){
+  const coordinates = akers_json["features"][0]["geometry"]["coordinates"];
+
+  const positions = coordinates.map(coordinate => Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1]));
+
+  const promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
+
+  Cesium.when(promise, updatedPositions => {
+    console.log('updated positions:');
+    console.log(updatedPositions);
+    const heights = updatedPositions.map(obj => obj.height);
+    
+    const csv_heights = heights.join(",");
+    console.log(csv_heights);
+    download('heights.csv', csv_heights);
+  });
 }
 
 
