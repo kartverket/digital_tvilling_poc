@@ -20,7 +20,7 @@ import {
 import * as Cesium from "../../Source/Cesium.js";
 
 Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkN2M3YTM1NC01ODcwLTQ4NDctODRiZC1iNmExMGNiNmQ3NzIiLCJpZCI6NjQzMjgsImlhdCI6MTYyOTExMDA5OH0.FERRrGiOOzThBx1XokWAAEIDCLG7MuF0Dh-QMccG_yY";
-const terrainAssetID = 670554;
+const terrainAssetID = 687966;
 const osmBuildingAssetID = 96188;
 const treeAssetID = 655651;
 const lilleTorgetID_kristian = 655667;
@@ -153,7 +153,7 @@ function custom(viewer, scene){
 
 
   let akers_json = null;
-  fetch("http://localhost:8080/Apps/CesiumViewer/Akerselva_linestring.json").then(
+  fetch("http://localhost:8080/Apps/CesiumViewer/improved_akerselva_linestring_2.geojson").then(
     response => {
       return response.json();
     }).then(
@@ -175,22 +175,28 @@ function download(filename, text) {
   document.body.removeChild(element);
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function use_akers_json(viewer, scene, akers_json){
   const coordinates = akers_json["features"][0]["geometry"]["coordinates"];
 
   const positions = coordinates.map(coordinate => Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1]));
 
-  const promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
+  
+  sleep(60000).then(() => {
+    const promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
 
-  Cesium.when(promise, updatedPositions => {
-    console.log('updated positions:');
-    console.log(updatedPositions);
-    const heights = updatedPositions.map(obj => obj.height);
-    
-    const csv_heights = heights.join(",");
-    console.log(csv_heights);
-    download('heights.csv', csv_heights);
+    Cesium.when(promise, updatedPositions => {
+      console.log('updated positions:');
+      console.log(updatedPositions);
+      const heights = updatedPositions.map(obj => obj.height);
+      
+      const csv_heights = heights.join(",");
+      console.log(csv_heights);
+      download('heights.csv', csv_heights);
+    });
   });
 }
 
