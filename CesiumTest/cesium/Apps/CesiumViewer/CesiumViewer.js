@@ -107,6 +107,67 @@ function leftClickOverride(viewer){
   console.log(viewer);
 }
 
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
+function use_akers_json(viewer, scene, akers_json, is_czml){
+
+  let positions;
+
+  if (is_czml == false){
+    const coordinates = akers_json["features"][0]["geometry"]["coordinates"];
+    positions = coordinates.map(coordinate => Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1]));
+  }else{
+    const cartoDegrees = akers_json[1]['polygon']['positions']['cartographicDegrees'];
+
+    let coordinates = [];
+    let coordinate = [];
+    for(let i = 0; i < cartoDegrees.length; i++){
+      if (i % 3 != 2){
+        coordinate.push(cartoDegrees[i]);
+      }else{
+        coordinates.push(coordinate);
+        coordinate = [];
+      }
+    }
+
+    console.log('coordinates!:');
+    console.log(coordinates);
+    positions = coordinates.map(coordinate => Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1]));
+  }
+
+  sleep(60000).then(() => {
+    const promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
+
+    Cesium.when(promise, updatedPositions => {
+
+      console.log('updated positions:');
+      console.log(updatedPositions);
+      const heights = updatedPositions.map(obj => obj.height);
+      
+      const csv_heights = heights.join(",");
+      console.log(csv_heights);
+      download('heights.csv', csv_heights);
+    });
+  });
+}
+
 function custom(viewer, scene){
 
   /*
@@ -153,52 +214,16 @@ function custom(viewer, scene){
 
 
   let akers_json = null;
-  fetch("http://localhost:8080/Apps/CesiumViewer/improved_akerselva_linestring_2.geojson").then(
+  fetch("http://localhost:8080/Apps/CesiumViewer/akerselva_buffer_polygon.czml").then(
     response => {
       return response.json();
     }).then(
-    json => {akers_json = json;use_akers_json(viewer, scene, akers_json);}
+    json => {akers_json = json;use_akers_json(viewer, scene, akers_json, true);}
   )
 
 }
 
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function use_akers_json(viewer, scene, akers_json){
-  const coordinates = akers_json["features"][0]["geometry"]["coordinates"];
-
-  const positions = coordinates.map(coordinate => Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1]));
-
-  
-  sleep(60000).then(() => {
-    const promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
-
-    Cesium.when(promise, updatedPositions => {
-      console.log('updated positions:');
-      console.log(updatedPositions);
-      const heights = updatedPositions.map(obj => obj.height);
-      
-      const csv_heights = heights.join(",");
-      console.log(csv_heights);
-      download('heights.csv', csv_heights);
-    });
-  });
-}
 
 
 function main() {
