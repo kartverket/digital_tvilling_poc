@@ -85,6 +85,14 @@ layer_dict_dict = {
 }
 
 
+'''
+    Binding mot en håndfull av SSB sine WMS-tjenester. Man kan hente data av følgende typer:
+    tettsted, bolig, befolkning og landbruk. 
+    Hensikten med denne funksjonen er å simulere en WMS-T tjeneste ut ifra SSB sine WMS-tjenester. Det vil si
+    en WMS tjeneste med tidsdimensjon. I tillegg til denne funksjonen, så har vi en fil på serveren som heter
+    "ssb_wms_getcapabilities.xml" som returneres ved bruk av kallet "https://api.dtpoc.knowit.no/ssb?request=GetCapabilities&service=WMS".
+    I denne filen har vi lagt inn informasjon som forteller Terria at det er snakk om en WMS tjenste med tids-dimensjon. 
+'''
 @app.route('/ssb')
 def ssb():
 
@@ -104,7 +112,7 @@ def ssb():
         elif params['request'] == 'GetLegendGraphic' or params['request'] == 'GetMetadata':
             params['layer'] = layer_dict_dict[params['layer']][2015]
 
-        # Fetching map images
+        # Fetching map images. A layer value and a time value is mapped to the correct layer in SSB's server
         elif params['request'] == 'GetMap':
             params['layers'] = layer_dict_dict[params['layers']][int(params['time'])]
             del params['time']
@@ -125,6 +133,12 @@ def ssb():
     response = Response(resp.content, resp.status_code, headers)
     return response
 
+'''
+    API mot proj.
+    from: EPSG-koden til punktene man ønsker å konvertere
+    to: EPSG-koden man ønsker å konvertere punktene til
+    points: streng med koordinater, på formen "lat, long, height, lat, long, height, lat..." 
+'''
 @app.route('/proj')
 def proj():
     fr = request.args.get("from")
@@ -167,8 +181,13 @@ def fkbbygg():
 
 
 
+'''
+    Henter ut varslede temperaturer og vinnhastigheter for Stavanger, Oslo og Tromsø. Koordinatene
+    for disse byene er hardkodet i funksjonen.
 
-
+    Responsen man får fra API-et er i JSON. Vi konverterer disse dataene til CSV på en slik måte at dataene
+    kan tolkes som en tidsserie i Terria.
+'''
 @app.route('/yr_weather')
 def yr_weather():
 
@@ -225,6 +244,10 @@ def yr_weather():
     response.headers['Content-Disposition'] = 'attachment; filename="yr_weather.csv"'
     return response
 
+'''
+    Her har vi hardkodet en url for å hente ut posisjonen til ruter sine busser i Oslo. Responsen man får fra serveren
+    er i XML. For å få vist dataene i Terria, konverterer vi de til en CSV-fil.
+'''
 @app.route("/entur")
 def entur():
     request_core = "https://api.entur.io/realtime/v1/rest/vm?datasetId=RUT&maxSize=10&requestorId=d25e6deb-cbd8-4ffc-b297-a1d819c685f0"
@@ -366,6 +389,12 @@ def trafikkdata():
     return out
 
 
+'''
+    Henter havnivå fra sehavnivå.no. Dataene man henter er i xml-format. 
+    For å få visualisert havnivået i Terria, bygger vi polygoner med høydeverdi som angitt i xml-filen
+    fra sehavnivå. Høydeverdiene er imidlertidig først konvertert til WGS84 med proj. Filformatet vi bygger 
+    er GeoJSON. 
+'''
 @app.route("/sehavniva")
 def sehavniva_data():
     currentDate = datetime.now()
@@ -617,6 +646,12 @@ def makeTrafficPointQuery(id, fro, to):
     return query
 
 
+
+'''
+    Denne funksjonen gjør nesten det samme som "/sehavnivå" Den enste forskjellen er at her returnerer dataene i
+    CZML i stedet for GeoJSON. CZML er et mer spesifikt format, som brukes for å representere tids-varierende data
+    i Cesium.
+'''
 @app.route("/sehavniva_czml")
 def sehavnivaCZML():
     currentDate = datetime.now()
