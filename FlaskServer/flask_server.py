@@ -137,16 +137,18 @@ def ssb():
     API mot proj.
     from: EPSG-koden til punktene man ønsker å konvertere
     to: EPSG-koden man ønsker å konvertere punktene til
-    points: streng med koordinater, på formen "lat, long, height, lat, long, height, lat..." 
+    points: streng med koordinater, på formen "lat, long, height, lat, long, height, lat..."
+    Rekkefølgen på "lat, long" er bassert på EPSG koden 4326, dersom man bruker en annen EPSG kode kan man ende opp med forskjellig rekkefølge.
+    UTM-32 for eksempel, er meter-basert, så da får man x, y, height, x, y, height.
 '''
 @app.route('/proj')
 def proj():
     fr = request.args.get("from")
     to = request.args.get("to")
     if fr == None:
-        fr = "epsg:5972"
+        fr = "epsg:4326"
     if to == None:
-        to = "epsg:4326"
+        to = "epsg:5972"
     tran = pyproj.Transformer.from_crs(fr, to)
     points = request.args.get("points")
     points = [float(x) for x in points.split(",")]
@@ -276,7 +278,11 @@ def entur():
 
     return out
 
-
+"""
+    Denne funksjonen henter ut data fra TrafikkAPI-et til Vegvesenet for Lagårdsveien og Kannik i Stavanger.
+    Den returnerer GeoJSON som inneholder et polygon for hvert vegpunkt, som endrer farge fra hvit til mørkeblått
+    bassert på hvor mye trafikk som var registrert til en hver tid i TrafikkAPI-et.
+"""
 @app.route("/trafikkdata")
 def trafikkdata():
     registrationPoints = [
@@ -602,6 +608,9 @@ def sehavniva_data():
     return out
 
 
+"""
+    Denne funksjonen lager et GeoJSON polygon fra coordinates og properties.
+"""
 def makePolygon(coordinates, properties):
     return {
         "type": "Feature",
@@ -614,6 +623,9 @@ def makePolygon(coordinates, properties):
         "properties": properties
     }
 
+"""
+    Denne funksjonen lager en forespørsel som kan sendes til Vegvesenet sitt TrafikkAPI.
+"""
 def makeTrafficPointQuery(id, fro, to):
     query = '''{
         trafficData(trafficRegistrationPointId: "%s") {
@@ -776,6 +788,10 @@ def sehavnivaCZML():
     out.headers['Content-Type'] = "application/json"
     return out
 
+'''
+    Denne funksjonen henter ut data fra sehavnivå.no for Oslo området, og returnerer data i CZML formatet.
+    Omtrent det samme som sehavniva_czml, bare med koordinater for Oslo fjorden.
+'''
 @app.route("/sehavniva_oslo")
 def sehavniva_oslo():
     currentDate = datetime.now()
@@ -849,6 +865,10 @@ def sehavniva_oslo():
     out.headers['Content-Type'] = "application/json"
     return out
 
+'''
+    Denne funksjonen tar inn koordinater i formatet { lat, lon }, samt nåværende dato, og henter så data fra SeHavNivå for koordinatene.
+    Den lager så tidsvarierende attributter for vannstand og returnerer disse. De tidsvarierende attributtene er på CZML format.
+'''
 def create_sehavniva_request_czml(cords, currentDate):
     params = {
         'lat': cords["lat"],
