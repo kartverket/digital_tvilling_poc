@@ -1,37 +1,10 @@
-# nonk8s
-apiVersion: "backstage.io/v1alpha1"
-kind: "Component"
+apiVersion: backstage.io/v1alpha1
+kind: Component
 metadata:
-  name: "digital_tvilling_poc"
+  name: digital_tvilling_poc
   tags:
-  - "public"
+    - public
 spec:
-  type: "website"
-  lifecycle: "production"
-  owner: "datadeling_og_distribusjon"
----
-apiVersion: "backstage.io/v1alpha1"
-kind: "Group"
-metadata:
-  name: "security_champion_digital_tvilling_poc"
-  title: "Security Champion digital_tvilling_poc"
-spec:
-  type: "security_champion"
-  parent: "land_security_champions"
-  members:
-  - "tevbrasch"
-  children:
-  - "resource:digital_tvilling_poc"
----
-apiVersion: "backstage.io/v1alpha1"
-kind: "Resource"
-metadata:
-  name: "digital_tvilling_poc"
-  links:
-  - url: "https://github.com/kartverket/digital_tvilling_poc"
-    title: "digital_tvilling_poc på GitHub"
-spec:
-  type: "repo"
-  owner: "security_champion_digital_tvilling_poc"
-  dependencyOf:
-  - "component:digital_tvilling_poc"
+  type: website
+  lifecycle: production
+  owner: datadeling_og_distribusjon
